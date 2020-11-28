@@ -3,10 +3,9 @@
 #include <LFramework/Debug.h>
 #include <iostream>
 #include <iomanip>
-#include <LFramework/Debug.h>
-#include <LFramework/DeviceNetwork/Node.h>
 
 #include <LFramework/Containers/ByteFifo.h>
+#include <LFramework/Threading/Thread.h>
 #include <LFramework/Threading/Semaphore.h>
 #include <LFramework/Threading/CriticalSection.h>
 #include <MicroNetwork/Host/UsbTransmitter.h>
