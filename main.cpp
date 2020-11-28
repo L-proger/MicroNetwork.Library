@@ -5,16 +5,12 @@
 #include <iomanip>
 #include <LFramework/Debug.h>
 #include <LFramework/DeviceNetwork/Node.h>
-#include <LFramework/DeviceNetwork/Router.h>
-#include <LFramework/DeviceNetwork/Packet.h>
+
 #include <LFramework/Containers/ByteFifo.h>
-#include <LFramework/DeviceNetwork/NetworkInterface.h>
 #include <LFramework/Threading/Semaphore.h>
 #include <LFramework/Threading/CriticalSection.h>
-#include <LFramework/DeviceNetwork/Host/UsbTransmitter.h>
-#include <LFramework/DeviceNetwork/Host/Host.h>
-
-#include <LFramework/DeviceNetwork/Packet.h>
+#include <MicroNetwork/Host/UsbTransmitter.h>
+#include <MicroNetwork/Host/Host.h>
 
 #include <thread>
 #include <chrono>
@@ -32,7 +28,7 @@ std::string findDevice(std::shared_ptr<UsbService> service){
     return {};
 }
 
-using namespace LFramework::DeviceNetwork;
+using namespace MicroNetwork;
 
 
 class TestTaskHost : public Host::IDataReceiver {
@@ -40,11 +36,11 @@ public:
     void setDataReceiver(Host::IDataReceiver* receiver)  {
         _receiver = receiver;
     }
-    bool handlePacket(PacketHeader header, const void* data) override {
+    bool handlePacket(Common::PacketHeader header, const void* data) override {
         lfDebug() << "TestTaskHost::handlePacket id=" << header.id << " size=" << header.size;
         ++_rxPacketId;
         if(_rxPacketId % 100 == 0){
-            MaxPacket packet;
+            Common::MaxPacket packet;
             packet.header.id = 8;
             packet.header.size = 2;
             packet.payload[0] = 3;
@@ -73,18 +69,7 @@ void onUsbDeviceChange2() {
 int main() {
 
     auto usbService1 = std::make_shared<UsbService>();
-    usbService1->startEventsListening(onUsbDeviceChange1);
 
-    auto usbService2 = std::make_shared<UsbService>();
-    usbService2->startEventsListening(onUsbDeviceChange2);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    usbService1->stopEventsListening();
-
-    while(true){
-        LFramework::Threading::ThisThread::sleepForMs(10);
-    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     lfDebug() << "Test";
