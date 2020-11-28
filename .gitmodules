@@ -1,0 +1,9 @@
+[submodule "Dependencies/MicroNetworkCommon"]
+	path = Dependencies/MicroNetworkCommon
+	url = https://github.com/L-proger/MicroNetworkCommon.git
+[submodule "Dependencies/MicroNetworkHost"]
+	path = Dependencies/MicroNetworkHost
+	url = https://github.com/L-proger/MicroNetworkHost.git
+[submodule "Dependencies/LFramework"]
+	path = Dependencies/LFramework
+	url = https://github.com/L-proger/LFramework.git
