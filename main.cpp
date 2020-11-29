@@ -16,6 +16,8 @@
 #include <functional>
 #include <atomic>
 
+#include <unknwn.h>
+
 std::string findDevice(std::shared_ptr<UsbService> service){
     auto devices = service->enumerateDevices();
 
@@ -30,12 +32,13 @@ std::string findDevice(std::shared_ptr<UsbService> service){
 using namespace MicroNetwork;
 
 
-class TestTaskHost : public Host::IDataReceiver {
+class TestTaskHost : public LFramework::ComImplement<TestTaskHost, LFramework::ComObject, Common::IDataReceiver>  {
 public:
-    void setDataReceiver(Host::IDataReceiver* receiver)  {
+    LFramework::Result setDataReceiver(LFramework::ComPtr<Common::IDataReceiver> receiver)  {
         _receiver = receiver;
+        return LFramework::Result::Ok;
     }
-    bool handlePacket(Common::PacketHeader header, const void* data) override {
+    LFramework::Result packet(Common::PacketHeader header, const void* data) {
         lfDebug() << "TestTaskHost::handlePacket id=" << header.id << " size=" << header.size;
         ++_rxPacketId;
         if(_rxPacketId % 100 == 0){
@@ -44,16 +47,13 @@ public:
             packet.header.size = 2;
             packet.payload[0] = 3;
             packet.payload[1] = 4;
-            _receiver->handlePacket(packet.header, packet.payload.data());
+            _receiver->packet(packet.header, packet.payload.data());
         }
-        return true;
-    }
-    void release() override {
-        lfDebug() << "TestTaskHost::Release";
+        return LFramework::Result::Ok;
     }
 private:
     int _rxPacketId = 0;
-    Host::IDataReceiver* _receiver;
+    LFramework::ComPtr<Common::IDataReceiver> _receiver;
 };
 
 
@@ -96,10 +96,12 @@ int main() {
 
         auto nodes = host->getNodes();
 
-        TestTaskHost testTask;
+        TestTaskHost* testTask = new TestTaskHost();
+        LFramework::ComPtr<Common::IDataReceiver> testTaskPtr(testTask->queryInterface<Common::IDataReceiver>());
 
-        auto networkDataReceiver = host->startTask(0, &testTask);
-        testTask.setDataReceiver(networkDataReceiver);
+
+        auto networkDataReceiver = host->startTask(0, testTaskPtr);
+        testTask->setDataReceiver(networkDataReceiver);
 
         while(true){
             LFramework::Threading::ThisThread::sleepForMs(10);
