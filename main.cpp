@@ -34,6 +34,11 @@ using namespace MicroNetwork;
 
 class TestTaskHost : public LFramework::ComImplement<TestTaskHost, LFramework::ComObject, Common::IDataReceiver>  {
 public:
+
+    ~TestTaskHost() {
+        std::cout << "TestTaskHost::~dtor" << std::endl;
+    }
+
     LFramework::Result setDataReceiver(LFramework::ComPtr<Common::IDataReceiver> receiver)  {
         _receiver = receiver;
         return LFramework::Result::Ok;
@@ -56,7 +61,6 @@ private:
     LFramework::ComPtr<Common::IDataReceiver> _receiver;
 };
 
-
 void onUsbDeviceChange1() {
     std::cout << "USB DEVICE CHANGE 1" << std::endl;
 }
@@ -67,8 +71,13 @@ void onUsbDeviceChange2() {
 
 int main() {
 
-    auto usbService1 = std::make_shared<UsbService>();
+    auto taskTest = LFramework::ComPtr<LFramework::IUnknown>::create<TestTaskHost>();
+    auto taskTest2 = taskTest.queryInterface<Common::IDataReceiver>();
 
+    taskTest = nullptr;
+    taskTest2 = nullptr;
+
+    auto usbService1 = std::make_shared<UsbService>();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     lfDebug() << "Test";
