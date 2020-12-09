@@ -13,3 +13,4 @@ HEADERS += \
 
 LIBS += -lUser32 -lAdvapi32 -lOle32 -lWinusb -lSetupAPI
 
+
