@@ -53,10 +53,18 @@ int main() {
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 
     lfDebug() << "Waiting for node...";
-    while(network->getStateId() == 0){
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    std::uint32_t oldId = 0;
+    while (true) {
+      
+        while (network->getStateId() == oldId) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        oldId = network->getStateId();
+        lfDebug() << "New update ID = " << network->getStateId();
     }
-    lfDebug() << "Node found! Update ID = " << network->getStateId();
+  
+  
 
     while(true){
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

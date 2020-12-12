@@ -1,1 +1,7 @@
 /*.user
+/debug
+/release
+/*.filters
+/.vs
+/*.vcxproj
+/.qmake.stash
