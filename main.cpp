@@ -3,7 +3,6 @@
 #include <LFramework/Debug.h>
 #include <iostream>
 #include <iomanip>
-
 #include <LFramework/Containers/ByteFifo.h>
 #include <LFramework/Threading/Thread.h>
 #include <LFramework/Threading/Semaphore.h>
@@ -16,6 +15,9 @@
 #include <functional>
 #include <atomic>
 #include <unknwn.h>
+
+#include <MicroNetwork/User/TaskContext.h>
+#include <MicroNetwork/User/TaskContextConstructor.h>
 
 using namespace MicroNetwork;
 
@@ -55,23 +57,7 @@ namespace LFramework {
     };
 }
 
-
-class TaskContext : public LFramework::RefCountedObject {
-public:
-    virtual void setDataReceiver(LFramework::ComPtr<Common::IDataReceiver> receiver) = 0;
-    virtual void onUserRelease() = 0;
-    virtual void onNetworkRelease() {
-        _isConnected = false;
-    }
-    LFramework::Result isConnected(bool& result) {
-        result = _isConnected;
-        return LFramework::Result::Ok;
-    }
-private:
-    bool _isConnected = true;
-};
-
-class TestTaskContext : public TaskContext {
+class TestTaskContext : public User::TaskContext {
 public:
     static constexpr LFramework::Guid ID = { 0x292464d1, 0xaf7a, 0x4e01, { 0x98, 0xc6, 0x27, 0x30, 0x48, 0x3d, 0x36, 0x6f } };
     ~TestTaskContext() {
@@ -108,22 +94,6 @@ private:
     std::mutex _packetsMutex;
 };
 
-template<class TUserInterface, class TImplementer>
-class TaskContextConstructor {
-public:
-    template<typename ... TArgs>
-    static LFramework::ComPtr<TUserInterface> construct(LFramework::ComPtr<MicroNetwork::Host::INetwork> network, MicroNetwork::Host::NodeHandle node, TArgs&& ... args) {
-        auto* taskContext = new TImplementer(std::move(args)...);
-        auto contextUserInterface = LFramework::makeComDelegate<TUserInterface>(taskContext, &TImplementer::onUserRelease);
-        auto contextNetworkInterface = LFramework::makeComDelegate<MicroNetwork::Common::IDataReceiver>(taskContext, &TImplementer::onNetworkRelease);
-        auto networkInterface = network->startTask(node, TImplementer::ID, contextNetworkInterface);
-        if (networkInterface == nullptr) { return {}; }
-        taskContext->setDataReceiver(networkInterface);
-        return contextUserInterface;
-    }
-};
-
-
 int main() {
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 
@@ -140,14 +110,7 @@ int main() {
     auto nodes = network->getNodes();
     auto node = nodes[0];
 
-    
-    LFramework::Guid badTaskId = { 0x192464d1, 0xaf7a, 0x4e01, { 0x98, 0xc6, 0x27, 0x30, 0x48, 0x3d, 0x36, 0x6f } };
-
-    auto b0 = network->isTaskSupported(node, TestTaskContext::ID);
-    auto b1 = network->isTaskSupported(node, badTaskId);
-
-
-    auto taskContext = TaskContextConstructor<ITestTaskContext, TestTaskContext>::construct(network, node);
+    auto taskContext = User::TaskContextConstructor<ITestTaskContext, TestTaskContext>::construct(network, node);
 
     lfDebug() << "Started task";
     std::vector<std::vector<std::uint8_t>> packets;
