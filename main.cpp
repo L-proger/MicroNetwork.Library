@@ -81,6 +81,7 @@ public:
         return LFramework::Result::Ok;
     }
     void onUserRelease() override {
+         _receiver = nullptr;
         lfDebug() << "User release";
     }
     void onNetworkRelease() override {
@@ -97,34 +98,54 @@ private:
 int main() {
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 
-    lfDebug() << "Waiting for node...";
 
-    std::uint32_t oldId = 0;
+    while(true){
+        lfDebug() << "Waiting for node...";
 
-    while (network->getStateId() == oldId) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    oldId = network->getStateId();
-    lfDebug() << "New update ID = " << network->getStateId();
-    
-    auto nodes = network->getNodes();
-    auto node = nodes[0];
 
-    auto taskContext = User::TaskContextConstructor<ITestTaskContext, TestTaskContext>::construct(network, node);
+        while(true){
+             auto nodes = network->getNodes();
+             if((nodes.size() != 0) && (network->getNodeState(nodes[0]) == MicroNetwork::Host::NodeState::Idle)){
+                 break;
+             }
+        }
 
-    lfDebug() << "Started task";
-    std::vector<std::vector<std::uint8_t>> packets;
-    bool isConnected = true;
-    while(isConnected){
-        taskContext->isConnected(isConnected);
-        if (isConnected) {
+        auto nodes = network->getNodes();
+        auto node = nodes[0];
 
-            taskContext->getPackets(packets);
-            if (packets.size() != 0) {
-                lfDebug() << "Received " << packets.size() << "packets";
-                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        lfDebug() << "Starting task on node: " <<  node;
+
+        auto taskContext = User::TaskContextConstructor<ITestTaskContext, TestTaskContext>::construct(network, node);
+
+        lfDebug() << "Task started";
+        std::vector<std::vector<std::uint8_t>> packets;
+        bool isConnected = true;
+
+        int pc = 0;
+        while(pc < 100){
+            taskContext->isConnected(isConnected);
+            if (isConnected) {
+
+                taskContext->getPackets(packets);
+                if (packets.size() != 0) {
+                    pc += packets.size();
+                    lfDebug() << "Received " << packets.size() << "packets";
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                }
             }
         }
+
+        taskContext = nullptr;
+        lfDebug() << "Task stopped";
+    }
+
+
+
+
+
+
+    while(true){
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     return 0;
 }
