@@ -16,8 +16,13 @@
 #include <atomic>
 #include <unknwn.h>
 
+#include <MicroNetwork.Common.h>
+
 #include <MicroNetwork/User/TaskContext.h>
 #include <MicroNetwork/User/TaskContextConstructor.h>
+
+
+
 
 using namespace MicroNetwork;
 
@@ -36,8 +41,6 @@ namespace LFramework {
         virtual LFramework::Result isConnected(bool& result) { return this->implementer()->isConnected(result); }
     };
 }
-
-
 
 class ITestTaskContext;
 namespace LFramework {
@@ -95,9 +98,27 @@ private:
     std::mutex _packetsMutex;
 };
 
+
+class TestClass : public LFramework::ComImplement<TestClass, LFramework::ComObject, MicroNetwork::Common::IDataReceiver> {
+public:
+    LFramework::Result LFRAMEWORK_COM_CALL packet(MicroNetwork::Common::PacketHeader header, const void* data) {
+        return LFramework::Result::ErrorPointer;
+    }
+};
+
 int main() {
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 
+    auto testObject = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestClass>();
+
+    try{
+        testObject->packet({1, 2}, nullptr);
+    }catch(const LFramework::ComException& ex){
+        std::cout << "packet failed with error code: " << (uint32_t)ex.code() << std::endl;
+    }
+
+
+    //bool hasWrapper = LFramework::HasInterfaceWrapper<MicroNetwork::Common::IDataReceiver>::value;
 
     while(true){
         lfDebug() << "Waiting for node...";
