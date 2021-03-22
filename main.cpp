@@ -109,20 +109,8 @@ public:
 int main() {
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 
-    auto testObject = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestClass>();
-
-    try{
-        testObject->packet({1, 2}, nullptr);
-    }catch(const LFramework::ComException& ex){
-        std::cout << "packet failed with error code: " << (uint32_t)ex.code() << std::endl;
-    }
-
-
-    //bool hasWrapper = LFramework::HasInterfaceWrapper<MicroNetwork::Common::IDataReceiver>::value;
-
     while(true){
         lfDebug() << "Waiting for node...";
-
 
         while(true){
              auto nodes = network->getNodes();

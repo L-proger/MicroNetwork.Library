@@ -29,5 +29,18 @@ namespace LFramework{
     struct InterfaceRemap<MicroNetwork::Common::IDataReceiver, TImplementer> : public InterfaceRemap<LFramework::IUnknown, TImplementer>{
         virtual Result LFRAMEWORK_COM_CALL packet(MicroNetwork::Common::PacketHeader header, const void* data) { return this->implementer()->packet(header, data); }
     }; //Remap
+    //Interface Wrapper
+    template<>
+    class LFramework::InterfaceWrapper<MicroNetwork::Common::IDataReceiver>{
+    public:
+        void packet(MicroNetwork::Common::PacketHeader header, const void* data){
+            auto comCallResult = _abi->packet(header, data);
+            if(comCallResult != Result::Ok){
+                throw ComException(comCallResult);
+            }
+        }
+    private:
+        InterfaceAbi<MicroNetwork::Common::IDataReceiver>* _abi;
+    };
 }
 
