@@ -41,7 +41,7 @@ namespace LFramework{
     template<>
     class LFramework::InterfaceWrapper<MicroNetwork::Common::IDataReceiver>{
     public:
-        void* result packet(MicroNetwork::Common::PacketHeader header, const void* data){
+        void packet(MicroNetwork::Common::PacketHeader header, const void* data){
             auto comCallResult = _abi->packet(header, data);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);

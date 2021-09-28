@@ -17,6 +17,7 @@ target_sources(libMicroNetwork
 )
 
 target_include_directories(libMicroNetwork PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Interfaces")
+target_include_directories(libMicroNetwork PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_subdirectory(Dependencies)
 
