@@ -31,8 +31,8 @@ namespace LFramework{
         using Base = InterfaceAbi<LFramework::IUnknown>;
         //{ce29c75f-a57e-4632-8a88-6562e04455a1}
         static constexpr InterfaceID ID() { return { 0xce29c75f, 0xa57e, 0x4632, { 0x8a, 0x88, 0x65, 0x62, 0xe0, 0x44, 0x55, 0xa1 } }; }
-        virtual Result LFRAMEWORK_COM_CALL startTask(std::uint32_t node, LFramework::Guid taskId, MicroNetwork::Common::IDataReceiver userDataReceiver, MicroNetwork::Common::IDataReceiver& result) = 0;
-        virtual Result LFRAMEWORK_COM_CALL isTaskSupported(std::uint32_t node, LFramework::Guid taskId, std::int32_t& result) = 0;
+        virtual Result LFRAMEWORK_COM_CALL startTask(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, LFramework::InterfaceAbi<MicroNetwork::Common::IDataReceiver>* userDataReceiver, LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>& result) = 0;
+        virtual Result LFRAMEWORK_COM_CALL isTaskSupported(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, std::int32_t& result) = 0;
         virtual Result LFRAMEWORK_COM_CALL getNodes(LFramework::ArrayOutMarshaler result) = 0;
         virtual Result LFRAMEWORK_COM_CALL getNodeState(MicroNetwork::Host::NodeHandle node, MicroNetwork::Host::NodeState& result) = 0;
         virtual Result LFRAMEWORK_COM_CALL getStateId(std::uint32_t& result) = 0;
@@ -42,7 +42,7 @@ namespace LFramework{
     //Interface Remap
     template<class TImplementer>
     struct InterfaceRemap<MicroNetwork::Host::INetwork, TImplementer> : public InterfaceRemap<LFramework::IUnknown, TImplementer>{
-        virtual Result LFRAMEWORK_COM_CALL startTask(std::uint32_t node, LFramework::Guid taskId, MicroNetwork::Common::IDataReceiver userDataReceiver, MicroNetwork::Common::IDataReceiver& result){
+        virtual Result LFRAMEWORK_COM_CALL startTask(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, LFramework::InterfaceAbi<MicroNetwork::Common::IDataReceiver>* userDataReceiver, LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>& result){
             try{
                 result = this->implementer()->startTask(node, taskId, userDataReceiver);
             }
@@ -51,7 +51,7 @@ namespace LFramework{
             }
             return LFramework::Result::Ok;
         }
-        virtual Result LFRAMEWORK_COM_CALL isTaskSupported(std::uint32_t node, LFramework::Guid taskId, std::int32_t& result){
+        virtual Result LFRAMEWORK_COM_CALL isTaskSupported(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, std::int32_t& result){
             try{
                 result = this->implementer()->isTaskSupported(node, taskId);
             }
@@ -92,15 +92,15 @@ namespace LFramework{
     template<>
     class LFramework::InterfaceWrapper<MicroNetwork::Host::INetwork>{
     public:
-        MicroNetwork::Common::IDataReceiver& startTask(std::uint32_t node, LFramework::Guid taskId, MicroNetwork::Common::IDataReceiver userDataReceiver){
-            MicroNetwork::Common::IDataReceiver result;
-            auto comCallResult = _abi->startTask(node, taskId, userDataReceiver, result);
+        LFramework::ComPtr<MicroNetwork::Common::IDataReceiver> startTask(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, LFramework::ComPtr<MicroNetwork::Common::IDataReceiver> userDataReceiver){
+            LFramework::ComPtr<MicroNetwork::Common::IDataReceiver> result;
+            auto comCallResult = _abi->startTask(node, taskId, userDataReceiver.detach(), result);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);
             }
             return result;
         }
-        std::int32_t& isTaskSupported(std::uint32_t node, LFramework::Guid taskId){
+        std::int32_t& isTaskSupported(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId){
             std::int32_t result;
             auto comCallResult = _abi->isTaskSupported(node, taskId, result);
             if(comCallResult != Result::Ok){
@@ -110,8 +110,7 @@ namespace LFramework{
         }
         std::vector<MicroNetwork::Host::NodeHandle> getNodes(){
             std::vector<MicroNetwork::Host::NodeHandle> result;
-            LFramework::ArrayOutMarshaler resultMarshaler(result);
-            auto comCallResult = _abi->getNodes(, resultMarshaler);
+            auto comCallResult = _abi->getNodes(result);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);
             }
@@ -127,7 +126,7 @@ namespace LFramework{
         }
         std::uint32_t& getStateId(){
             std::uint32_t result;
-            auto comCallResult = _abi->getStateId(, result);
+            auto comCallResult = _abi->getStateId(result);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);
             }

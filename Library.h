@@ -1,6 +1,6 @@
 #pragma once
 
-#include <MicroNetwork/Host/INetwork.h>
+#include <MicroNetwork.Host.h>
 
 namespace MicroNetwork::Host {
 

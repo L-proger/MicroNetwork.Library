@@ -122,7 +122,7 @@ int main() {
         auto nodes = network->getNodes();
         auto node = nodes[0];
 
-        lfDebug() << "Starting task on node: " <<  node;
+        lfDebug() << "Starting task on node: " <<  node.value;
 
         auto taskContext = User::TaskContextConstructor<ITestTaskContext, TestTaskContext>::construct(network, node);
 
