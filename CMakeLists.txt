@@ -32,4 +32,4 @@ target_link_libraries(MicroNetworkHost PRIVATE MicroNetworkCommon)
 target_link_libraries(libMicroNetwork PRIVATE MicroNetworkHost)
 target_link_libraries(libMicroNetwork PRIVATE MicroNetworkUser)
 
-#LIBS += -lUser32 -lAdvapi32 -lOle32 -lWinusb -lSetupAPI
+target_link_libraries(libMicroNetwork PRIVATE User32 Advapi32 Ole32 Winusb SetupAPI)
