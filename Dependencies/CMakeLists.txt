@@ -1,1 +1,4 @@
 add_subdirectory(LFramework)
+add_subdirectory(MicroNetworkCommon)
+add_subdirectory(MicroNetworkHost)
+add_subdirectory(MicroNetworkUser)
