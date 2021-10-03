@@ -39,16 +39,14 @@ namespace LFramework{
     };
     //Interface Wrapper
     template<>
-    class LFramework::InterfaceWrapper<MicroNetwork::Common::IDataReceiver>{
+    class InterfaceWrapper<MicroNetwork::Common::IDataReceiver> : public InterfaceWrapper<LFramework::IUnknown> {
     public:
         void packet(MicroNetwork::Common::PacketHeader header, const void* data){
-            auto comCallResult = _abi->packet(header, data);
+            auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Common::IDataReceiver>*>(_abi)->packet(header, data);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);
             }
         }
-    private:
-        InterfaceAbi<MicroNetwork::Common::IDataReceiver>* _abi;
     };
 }
 
