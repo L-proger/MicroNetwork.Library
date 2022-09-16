@@ -17,11 +17,12 @@
 #include <unknwn.h>
 
 #include <MicroNetwork.Common.h>
+#include <MicroNetwork.Task.MemoryAccess.h>
 
 #include <MicroNetwork/User/TaskContext.h>
 #include <MicroNetwork/User/TaskContextConstructor.h>
-
-
+#include <MicroNetwork.Task.MemoryAccess.IHostToDevice.OutMarshaler.h>
+#include <MicroNetwork.Task.MemoryAccess.IDeviceToHost.InMarshaler.h>
 
 
 using namespace MicroNetwork;
@@ -98,7 +99,6 @@ private:
     std::mutex _packetsMutex;
 };
 
-
 class TestClass : public LFramework::ComImplement<TestClass, LFramework::ComObject, MicroNetwork::Common::IDataReceiver> {
 public:
     LFramework::Result LFRAMEWORK_COM_CALL packet(MicroNetwork::Common::PacketHeader header, const void* data) {
@@ -106,17 +106,29 @@ public:
     }
 };
 
+class TestDataReceiver : public LFramework::ComImplement<TestDataReceiver, LFramework::ComObject, MicroNetwork::Common::IDataReceiver> {
+public:
+    void packet(MicroNetwork::Common::PacketHeader header, const void* data) {
+        std::cout << "Packet id: " << (int)header.id << " size: " << (int)header.size << std::endl;
+    }
+};
+
 int main() {
+    auto rx = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestDataReceiver>();
+    auto outPtr = LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice>::create<MicroNetwork::Task::MemoryAccess::IHostToDeviceOutMarshaler>(rx);
+    outPtr->read({ 1, 2 });
+    outPtr->write({ {1, 2}, {6, 7, 8} });
+
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 
     while(true){
         lfDebug() << "Waiting for node...";
 
         while(true){
-             auto nodes = network->getNodes();
-             if((nodes.size() != 0) && (network->getNodeState(nodes[0]) == MicroNetwork::Host::NodeState::Idle)){
-                 break;
-             }
+            auto nodes = network->getNodes();
+            if((nodes.size() != 0) && (network->getNodeState(nodes[0]) == MicroNetwork::Host::NodeState::Idle)){
+                break;
+            }
         }
 
         auto nodes = network->getNodes();
