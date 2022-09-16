@@ -1,2 +1,2 @@
 
-&"$PSScriptRoot/ComInterfaceGenerator/out/build/x64-Debug/ComInterfaceGenerator.exe" generate -I "$PSScriptRoot/Dependencies/MicroNetworkCommon/Api" -o "$PSScriptRoot/Interfaces" -l Cpp "MicroNetwork.Common"
+&"$PSScriptRoot/ComInterfaceGenerator/out/build/x64-Debug/ComInterfaceGenerator.exe" generate -I "$PSScriptRoot/Dependencies/MicroNetworkHost/Api" -I "$PSScriptRoot/Dependencies/MicroNetworkCommon/Api" -o "$PSScriptRoot/Interfaces" -l Cpp "MicroNetwork.Common"  "MicroNetwork.Host"
