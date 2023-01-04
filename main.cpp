@@ -1,5 +1,5 @@
-#include <LFramework/USB/Host/UsbService.h>
-#include <LFramework/USB/Host/UsbHDevice.h>
+#include <LFramework/USB/Host/IUsbService.h>
+#include <LFramework/USB/Host/IUsbDevice.h>
 #include <LFramework/Debug.h>
 #include <iostream>
 #include <iomanip>
@@ -14,7 +14,7 @@
 #include <chrono>
 #include <functional>
 #include <atomic>
-#include <unknwn.h>
+//#include <unknwn.h>
 
 #include <MicroNetwork.Common.h>
 #include <MicroNetwork.Task.MemoryAccess.h>
@@ -113,7 +113,29 @@ public:
     }
 };
 
+#include <LFramework/USB/Host/Linux/NetlinkClient.h>
+#include <LFramework/USB/Host/Linux/NetlinkReader.h>
+
+void deviceCallback(const LFramework::USB::NetlinkReader::DeviceEvent& event) {
+    std::cout << "#Event: " << (event.removed ? "removed" : "added") << std::endl;
+    std::cout << "\tBusNumber: " << (int)event.busNumber << std::endl;
+    std::cout << "\tDeviceNumber: " << (int)event.deviceNumber << std::endl;
+    std::cout << "\tFileName: " << event.sysfsFileName << std::endl;
+}
+
 int main() {
+
+
+
+    auto netlinkClient = std::make_shared<LFramework::USB::NetlinkClient>();
+    auto netlinkReader = std::make_shared<LFramework::USB::NetlinkReader>(netlinkClient, deviceCallback);
+
+
+    while(true){
+        std::cout << "LOL" << std::endl;
+        sleep(1);
+    }
+
     auto rx = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestDataReceiver>();
     auto outPtr = LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice>::create<MicroNetwork::Task::MemoryAccess::IHostToDeviceOutMarshaler>(rx);
     outPtr->read({ 1, 2 });

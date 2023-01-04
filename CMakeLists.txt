@@ -4,8 +4,18 @@ set(PROJECT_NAME "libMicroNetwork")
 set(LFRAMEWORK_LIB "true")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	add_link_options(-static-libgcc)
+	add_link_options(-static-libstdc++)
+endif()
+
 set(API_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Interfaces")
 set(LFRAMEWORK_CONFIG_FILE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+#add_compile_options(-gdwarf-4)
+
+
+message("!!   ${CMAKE_SYSTEM_NAME}")
 
 add_executable(libMicroNetwork)
 #add_library(libMicroNetwork SHARED)
@@ -39,4 +49,10 @@ target_link_libraries(MicroNetworkHost PRIVATE MicroNetworkCommon)
 target_link_libraries(libMicroNetwork PRIVATE MicroNetworkHost)
 target_link_libraries(libMicroNetwork PRIVATE MicroNetworkUser)
 
-target_link_libraries(libMicroNetwork PRIVATE User32 Advapi32 Ole32 Winusb SetupAPI)
+target_link_libraries(libMicroNetwork PRIVATE pthread)
+
+
+
+
+
+#target_link_libraries(libMicroNetwork PRIVATE User32 Advapi32 Ole32 Winusb SetupAPI)
