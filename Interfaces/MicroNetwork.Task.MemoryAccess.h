@@ -55,7 +55,7 @@ namespace LFramework{
     struct InterfaceAbi<MicroNetwork::Task::MemoryAccess::IHostToDevice> : public InterfaceAbi<LFramework::IUnknown>{
         using Base = InterfaceAbi<LFramework::IUnknown>;
         //{cc3bcc31-5bba-4be5-b3bd-c7fd854a9c2d}
-        static constexpr InterfaceID ID() { return { 0xcc3bcc31, 0x5bba, 0x4be5, { 0xb3, 0xbd, 0xc7, 0xfd, 0x85, 0x4a, 0x9c, 0x2d } }; }
+        static constexpr InterfaceID ID() { return { 0xcc3bcc31, 0x4be55bba, 0xfdc7bdb3, 0x2d9c4a85  }; }
         virtual Result LFRAMEWORK_COM_CALL read(MicroNetwork::Task::MemoryAccess::MemoryRegion request) = 0;
         virtual Result LFRAMEWORK_COM_CALL write(MicroNetwork::Task::MemoryAccess::MemoryBlob request) = 0;
     private:
@@ -110,7 +110,7 @@ namespace LFramework{
     struct InterfaceAbi<MicroNetwork::Task::MemoryAccess::IDeviceToHost> : public InterfaceAbi<LFramework::IUnknown>{
         using Base = InterfaceAbi<LFramework::IUnknown>;
         //{da97a152-9e0c-43c1-bd60-571c8b4582df}
-        static constexpr InterfaceID ID() { return { 0xda97a152, 0x9e0c, 0x43c1, { 0xbd, 0x60, 0x57, 0x1c, 0x8b, 0x45, 0x82, 0xdf } }; }
+        static constexpr InterfaceID ID() { return { 0xda97a152, 0x43c19e0c, 0x1c5760bd, 0xdf82458b  }; }
         virtual Result LFRAMEWORK_COM_CALL readResponse(MicroNetwork::Task::MemoryAccess::MemoryBlob response) = 0;
         virtual Result LFRAMEWORK_COM_CALL writeResponse(bool success) = 0;
     private:

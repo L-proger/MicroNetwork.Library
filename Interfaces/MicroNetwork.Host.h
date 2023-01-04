@@ -30,7 +30,7 @@ namespace LFramework{
     struct InterfaceAbi<MicroNetwork::Host::INetwork> : public InterfaceAbi<LFramework::IUnknown>{
         using Base = InterfaceAbi<LFramework::IUnknown>;
         //{ce29c75f-a57e-4632-8a88-6562e04455a1}
-        static constexpr InterfaceID ID() { return { 0xce29c75f, 0xa57e, 0x4632, { 0x8a, 0x88, 0x65, 0x62, 0xe0, 0x44, 0x55, 0xa1 } }; }
+        static constexpr InterfaceID ID() { return { 0xce29c75f, 0x4632a57e, 0x6265888a, 0xa15544e0 }; }
         virtual Result LFRAMEWORK_COM_CALL startTask(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, LFramework::InterfaceAbi<MicroNetwork::Common::IDataReceiver>* userDataReceiver, LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>& result) = 0;
         virtual Result LFRAMEWORK_COM_CALL isTaskSupported(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, std::int32_t& result) = 0;
         virtual Result LFRAMEWORK_COM_CALL getNodes(LFramework::ArrayOutMarshaler result) = 0;

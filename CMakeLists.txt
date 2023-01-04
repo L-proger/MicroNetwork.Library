@@ -36,7 +36,7 @@ target_include_directories(libMicroNetwork PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_subdirectory(Dependencies)
 
-target_compile_definitions(LFramework PUBLIC LF_USB_HOST)
+target_compile_definitions(LFramework INTERFACE LF_USB_HOST)
 
 
 

@@ -32,7 +32,7 @@ namespace LFramework {
     template<>
     struct InterfaceAbi<ITaskContext> : public InterfaceAbi<IUnknown> {
         using Base = InterfaceAbi<IUnknown>;
-        static constexpr InterfaceID ID() { return { 0x52c189a3, 0xaad9, 0x464f, { 0x9c, 0x85, 0x16, 0x3e, 0x4, 0x49, 0xc, 0x26 } }; }
+        static constexpr InterfaceID ID() { return { 0x52c189a3, 0x464faad9, 0x3e16859c, 0x260c4904  }; }
         virtual LFramework::Result isConnected(bool& result) = 0;
     };
 
@@ -48,7 +48,7 @@ namespace LFramework {
     template<>
     struct InterfaceAbi<ITestTaskContext> : public InterfaceAbi<ITaskContext> {
         using Base = InterfaceAbi<ITaskContext>;
-        static constexpr InterfaceID ID() { return { 0x4f1e8f7c, 0x4629, 0x4cce, { 0xad, 0x12, 0xb2, 0x2e, 0x7b, 0x4c, 0x86, 0x74 } }; }
+        static constexpr InterfaceID ID() { return { 0x4f1e8f7c, 0x4cce4629, 0x2eb212ad, 0x74864c7b }; }
         virtual LFramework::Result getPackets(std::vector<std::vector<std::uint8_t>>& result) = 0;
         virtual LFramework::Result sendPacket(std::vector<std::uint8_t>& data) = 0;
     };
@@ -63,7 +63,7 @@ namespace LFramework {
 
 class TestTaskContext : public User::TaskContext {
 public:
-    static constexpr LFramework::Guid ID = { 0x292464d1, 0xaf7a, 0x4e01, { 0x98, 0xc6, 0x27, 0x30, 0x48, 0x3d, 0x36, 0x6f } };
+    static constexpr LFramework::Guid ID = { 0x292464d1, 0x4e01af7a, 0x3027c698, 0x6f363d48 };
     ~TestTaskContext() {
         std::cout << "TestTaskHost::~dtor" << std::endl;
     }
