@@ -100,7 +100,7 @@ namespace LFramework{
             }
             return result;
         }
-        std::int32_t& isTaskSupported(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId){
+        std::int32_t isTaskSupported(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId){
             std::int32_t result;
             auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::INetwork>*>(_abi)->isTaskSupported(node, taskId, result);
             if(comCallResult != Result::Ok){
@@ -116,7 +116,7 @@ namespace LFramework{
             }
             return result;
         }
-        MicroNetwork::Host::NodeState& getNodeState(MicroNetwork::Host::NodeHandle node){
+        MicroNetwork::Host::NodeState getNodeState(MicroNetwork::Host::NodeHandle node){
             MicroNetwork::Host::NodeState result;
             auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::INetwork>*>(_abi)->getNodeState(node, result);
             if(comCallResult != Result::Ok){
@@ -124,7 +124,7 @@ namespace LFramework{
             }
             return result;
         }
-        std::uint32_t& getStateId(){
+        std::uint32_t getStateId(){
             std::uint32_t result;
             auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::INetwork>*>(_abi)->getStateId(result);
             if(comCallResult != Result::Ok){

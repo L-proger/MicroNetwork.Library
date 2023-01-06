@@ -119,46 +119,7 @@ public:
 #include <LFramework/USB/Host/Linux/NetlinkClient.h>
 #include <LFramework/USB/Host/Linux/NetlinkReader.h>
 
-//void deviceCallback(const LFramework::USB::NetlinkReader::DeviceEvent& event) {
-//    std::cout << "#Event: " << (event.removed ? "removed" : "added") << std::endl;
-//    std::cout << "\tBusNumber: " << (int)event.busNumber << std::endl;
-//    std::cout << "\tDeviceNumber: " << (int)event.deviceNumber << std::endl;
-//    std::cout << "\tFileName: " << event.sysfsFileName << std::endl;
-//}
-
-
-void printDevices(std::shared_ptr<LFramework::USB::UsbService> service) {
-    auto devices = service->enumerateDevices();
-    std::cout << "!!! Found " << devices.size() << " USB devices" << std::endl;
-
-    std::ios_base::fmtflags f( std::cout.flags() );
-    for(auto& dev : devices){
-        std::cout << "path: " << dev.path << std::endl;
-        std::cout << "serial: " << dev.serialNumber << std::endl;
-        std::cout << "vid: " << std::hex << dev.vid << std::endl;
-        std::cout << "pid: " << std::hex << dev.pid << std::endl;
-    }
-    std::cout.flags( f );
-}
-
-
 int main() {
-
-    //auto usbService = std::make_shared<LFramework::USB::UsbService>();
-    //usbService->startEventsListening([=](){
-    //    printDevices(usbService);
-    //});
-
-    
-    //auto netlinkClient = std::make_shared<LFramework::USB::NetlinkClient>();
-    //auto netlinkReader = std::make_shared<LFramework::USB::NetlinkReader>(netlinkClient, deviceCallback);
-
-
-    //while(true){
-    //    //std::cout << "LOL" << std::endl;
-    //    sleep(1);
-    //}
-
     auto rx = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestDataReceiver>();
     auto outPtr = LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice>::create<MicroNetwork::Task::MemoryAccess::IHostToDeviceOutMarshaler>(rx);
     outPtr->read({ 1, 2 });
@@ -171,8 +132,15 @@ int main() {
 
         while(true){
             auto nodes = network->getNodes();
-            if((nodes.size() != 0) && (network->getNodeState(nodes[0]) == MicroNetwork::Host::NodeState::Idle)){
-                break;
+            auto nodesSize = nodes.size();
+
+            if(nodesSize != 0){
+                auto node = nodes[0];
+
+                auto nodeState = network->getNodeState(node);
+                if(nodeState == MicroNetwork::Host::NodeState::Idle){
+                    break;
+                }
             }
         }
 
@@ -204,10 +172,6 @@ int main() {
         taskContext = nullptr;
         lfDebug() << "Task stopped";
     }
-
-
-
-
 
 
     while(true){
