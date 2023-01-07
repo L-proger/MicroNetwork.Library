@@ -26,29 +26,10 @@
 
 #include <MicroNetwork.Task.MemoryAccess.IHostToDevice.Serializer.Out.h>
 #include <MicroNetwork.Task.MemoryAccess.IDeviceToHost.Serializer.In.h>
+#include <MicroNetwork.Host.MemoryAccess.h>
 #include <iomanip>
 
 using namespace MicroNetwork;
-
-
-
-class ITestTaskContext;
-namespace LFramework {
-    template<>
-    struct InterfaceAbi<ITestTaskContext> : public InterfaceAbi<MicroNetwork::Host::ITask> {
-        using Base = InterfaceAbi<MicroNetwork::Host::ITask>;
-        static constexpr InterfaceID ID() { return { 0x4f1e8f7c, 0x4cce4629, 0x2eb212ad, 0x74864c7b }; }
-        virtual LFramework::Result getPackets(std::vector<std::vector<std::uint8_t>>& result) = 0;
-        virtual LFramework::Result sendPacket(std::vector<std::uint8_t>& data) = 0;
-    };
-
-    template<class TImplementer>
-    struct InterfaceRemap<ITestTaskContext, TImplementer> : public InterfaceRemap<MicroNetwork::Host::ITask, TImplementer> {
-    public:
-        virtual LFramework::Result getPackets(std::vector<std::vector<std::uint8_t>>& result) { return this->implementer()->getPackets(result); }
-        virtual LFramework::Result sendPacket(std::vector<std::uint8_t>& data) { return this->implementer()->sendPacket(data); }
-    };
-}
 
 class TestTaskContext : public User::TaskContext {
 public:
@@ -64,14 +45,18 @@ public:
         _packets.push_back(std::vector<std::uint8_t>((const std::uint8_t*)data, (const std::uint8_t*)data + header.size));
         return LFramework::Result::Ok;
     }
-    LFramework::Result getPackets(std::vector<std::vector<std::uint8_t>>& result) { 
+    std::vector<std::uint8_t> getPacket() { 
         std::lock_guard<std::mutex> lock(_packetsMutex);
-        result = _packets;
-        _packets.clear();
-        return LFramework::Result::Ok;
+        if(_packets.empty()){
+            return {}; 
+        }else{
+            auto result = _packets[0];
+            _packets.erase(_packets.begin());
+            return result;
+        }
     }
-    LFramework::Result sendPacket(std::vector<std::uint8_t>& data) { 
-        return LFramework::Result::Ok;
+    void sendPacket(const std::vector<std::uint8_t>& data) { 
+        
     }
     void onUserRelease() override {
          _receiver = nullptr;
@@ -115,21 +100,21 @@ int main() {
 
         lfDebug() << "Starting task on node: " <<  node.value;
 
-        auto taskContext = User::TaskContextConstructor<ITestTaskContext, TestTaskContext>::construct(network, node);
+        auto taskContext = User::TaskContextConstructor<MicroNetwork::Host::MemoryAccess::ITask, TestTaskContext>::construct(network, node);
 
         lfDebug() << "Task started";
-        std::vector<std::vector<std::uint8_t>> packets;
+        std::vector<std::uint8_t> packet;
         bool isConnected = true;
 
         int pc = 0;
         while(pc < 100){
-            taskContext->isConnected(isConnected);
+            isConnected = taskContext->isConnected();
             if (isConnected) {
 
-                taskContext->getPackets(packets);
-                if (packets.size() != 0) {
-                    pc += packets.size();
-                    lfDebug() << "Received " << packets.size() << "packets";
+                packet = taskContext->getPacket();
+                if (packet.size() != 0) {
+                    //pc++;
+                    lfDebug() << "Received packet with " << packet.size() << " bytes";
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
                 }
             }
