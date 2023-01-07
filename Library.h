@@ -4,9 +4,9 @@
 
 namespace MicroNetwork::Host {
 
-class Library {
+class Library : public LFramework::ComImplement<Library, LFramework::ComObject, MicroNetwork::Host::ILibrary>{
 public:
-    static LFramework::ComPtr<MicroNetwork::Host::INetwork> createNetwork(std::uint16_t vid, std::uint16_t pid);
+    LFramework::ComPtr<MicroNetwork::Host::INetwork> createNetwork(std::uint16_t vid, std::uint16_t pid);
 };
 
 }

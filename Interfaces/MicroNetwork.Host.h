@@ -4,6 +4,7 @@
 //imported type: LFramework::IUnknown from module: LFramework/COM/ComObject.h
 //imported type: IDataReceiver from module: MicroNetwork.Common
 //imported type: LFramework::Guid from module: LFramework/Guid.h
+//imported type: std::uint16_t from module: cstdint
 //imported type: bool from module: LanguagePrimitive
 #include <LFramework/Guid.h>
 #include <LFramework/COM/ComObject.h>
@@ -128,6 +129,47 @@ namespace LFramework{
         std::uint32_t getStateId(){
             std::uint32_t result;
             auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::INetwork>*>(_abi)->getStateId(result);
+            if(comCallResult != Result::Ok){
+                throw ComException(comCallResult);
+            }
+            return result;
+        }
+    };
+}
+namespace MicroNetwork::Host{
+    class ILibrary;
+} //MicroNetwork::Host
+namespace LFramework{
+    //Interface ABI
+    template<>
+    struct InterfaceAbi<MicroNetwork::Host::ILibrary> : public InterfaceAbi<LFramework::IUnknown>{
+        using Base = InterfaceAbi<LFramework::IUnknown>;
+        //{193287cb-f6fd-4086-9de8-787f05b64f26}
+        static constexpr InterfaceID ID() { return { 0x193287cb, 0x4086f6fd, 0x7f78e89d, 0x264fb605 }; }
+        virtual Result LFRAMEWORK_COM_CALL createNetwork(std::uint16_t vid, std::uint16_t pid, LFramework::ComPtr<MicroNetwork::Host::INetwork>& result) = 0;
+    private:
+        ~InterfaceAbi() = delete;
+    }; //ILibrary
+    //Interface Remap
+    template<class TImplementer>
+    struct InterfaceRemap<MicroNetwork::Host::ILibrary, TImplementer> : public InterfaceRemap<LFramework::IUnknown, TImplementer>{
+        virtual Result LFRAMEWORK_COM_CALL createNetwork(std::uint16_t vid, std::uint16_t pid, LFramework::ComPtr<MicroNetwork::Host::INetwork>& result){
+            try{
+                result = this->implementer()->createNetwork(vid, pid);
+            }
+            catch(...){
+                return LFramework::Result::UnknownFailure;
+            }
+            return LFramework::Result::Ok;
+        }
+    };
+    //Interface Wrapper
+    template<>
+    class InterfaceWrapper<MicroNetwork::Host::ILibrary> : public InterfaceWrapper<LFramework::IUnknown> {
+    public:
+        LFramework::ComPtr<MicroNetwork::Host::INetwork> createNetwork(std::uint16_t vid, std::uint16_t pid){
+            LFramework::ComPtr<MicroNetwork::Host::INetwork> result;
+            auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::ILibrary>*>(_abi)->createNetwork(vid, pid, result);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);
             }

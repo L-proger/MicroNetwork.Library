@@ -76,7 +76,9 @@ private:
 
 int main() {
 
-    auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
+    auto library = LFramework::ComPtr<MicroNetwork::Host::ILibrary>::create<MicroNetwork::Host::Library>();
+
+    auto network = library->createNetwork(0x0301, 0x1111);
 
     while(true){
         lfDebug() << "Waiting for node...";
