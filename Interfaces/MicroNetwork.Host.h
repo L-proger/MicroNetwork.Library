@@ -4,10 +4,10 @@
 //imported type: LFramework::IUnknown from module: LFramework/COM/ComObject.h
 //imported type: IDataReceiver from module: MicroNetwork.Common
 //imported type: LFramework::Guid from module: LFramework/Guid.h
-#include <LFramework/COM/ComObject.h>
-#include <cstdint>
-#include <MicroNetwork.Common.h>
 #include <LFramework/Guid.h>
+#include <LFramework/COM/ComObject.h>
+#include <MicroNetwork.Common.h>
+#include <cstdint>
 namespace MicroNetwork::Host{
     enum NodeState : std::int32_t{
         NotReady = 0,
