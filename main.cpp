@@ -30,34 +30,20 @@
 
 using namespace MicroNetwork;
 
-class ITaskContext;
-namespace LFramework {
-    template<>
-    struct InterfaceAbi<ITaskContext> : public InterfaceAbi<IUnknown> {
-        using Base = InterfaceAbi<IUnknown>;
-        static constexpr InterfaceID ID() { return { 0x52c189a3, 0x464faad9, 0x3e16859c, 0x260c4904  }; }
-        virtual LFramework::Result isConnected(bool& result) = 0;
-    };
 
-    template<class TImplementer>
-    struct InterfaceRemap<ITaskContext, TImplementer> : public InterfaceRemap<IUnknown, TImplementer> {
-    public:
-        virtual LFramework::Result isConnected(bool& result) { return this->implementer()->isConnected(result); }
-    };
-}
 
 class ITestTaskContext;
 namespace LFramework {
     template<>
-    struct InterfaceAbi<ITestTaskContext> : public InterfaceAbi<ITaskContext> {
-        using Base = InterfaceAbi<ITaskContext>;
+    struct InterfaceAbi<ITestTaskContext> : public InterfaceAbi<MicroNetwork::Host::ITask> {
+        using Base = InterfaceAbi<MicroNetwork::Host::ITask>;
         static constexpr InterfaceID ID() { return { 0x4f1e8f7c, 0x4cce4629, 0x2eb212ad, 0x74864c7b }; }
         virtual LFramework::Result getPackets(std::vector<std::vector<std::uint8_t>>& result) = 0;
         virtual LFramework::Result sendPacket(std::vector<std::uint8_t>& data) = 0;
     };
 
     template<class TImplementer>
-    struct InterfaceRemap<ITestTaskContext, TImplementer> : public InterfaceRemap<ITaskContext, TImplementer> {
+    struct InterfaceRemap<ITestTaskContext, TImplementer> : public InterfaceRemap<MicroNetwork::Host::ITask, TImplementer> {
     public:
         virtual LFramework::Result getPackets(std::vector<std::vector<std::uint8_t>>& result) { return this->implementer()->getPackets(result); }
         virtual LFramework::Result sendPacket(std::vector<std::uint8_t>& data) { return this->implementer()->sendPacket(data); }
@@ -102,28 +88,8 @@ private:
     std::mutex _packetsMutex;
 };
 
-class TestClass : public LFramework::ComImplement<TestClass, LFramework::ComObject, MicroNetwork::Common::IDataReceiver> {
-public:
-    LFramework::Result LFRAMEWORK_COM_CALL packet(MicroNetwork::Common::PacketHeader header, const void* data) {
-        return LFramework::Result::ErrorPointer;
-    }
-};
-
-class TestDataReceiver : public LFramework::ComImplement<TestDataReceiver, LFramework::ComObject, MicroNetwork::Common::IDataReceiver> {
-public:
-    void packet(MicroNetwork::Common::PacketHeader header, const void* data) {
-        std::cout << "Packet id: " << (int)header.id << " size: " << (int)header.size << std::endl;
-    }
-};
-
-#include <LFramework/USB/Host/Linux/NetlinkClient.h>
-#include <LFramework/USB/Host/Linux/NetlinkReader.h>
 
 int main() {
-    auto rx = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestDataReceiver>();
-    auto outPtr = LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice>::create<MicroNetwork::Task::MemoryAccess::IHostToDeviceSerializerOut>(rx);
-    outPtr->read({ 1, 2 });
-    outPtr->write({ {1, 2}, {6, 7, 8} });
 
     auto network = MicroNetwork::Host::Library::createNetwork(0x0301, 0x1111);
 

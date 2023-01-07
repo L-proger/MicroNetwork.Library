@@ -4,6 +4,7 @@
 //imported type: LFramework::IUnknown from module: LFramework/COM/ComObject.h
 //imported type: IDataReceiver from module: MicroNetwork.Common
 //imported type: LFramework::Guid from module: LFramework/Guid.h
+//imported type: bool from module: LanguagePrimitive
 #include <LFramework/Guid.h>
 #include <LFramework/COM/ComObject.h>
 #include <MicroNetwork.Common.h>
@@ -127,6 +128,47 @@ namespace LFramework{
         std::uint32_t getStateId(){
             std::uint32_t result;
             auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::INetwork>*>(_abi)->getStateId(result);
+            if(comCallResult != Result::Ok){
+                throw ComException(comCallResult);
+            }
+            return result;
+        }
+    };
+}
+namespace MicroNetwork::Host{
+    class ITask;
+} //MicroNetwork::Host
+namespace LFramework{
+    //Interface ABI
+    template<>
+    struct InterfaceAbi<MicroNetwork::Host::ITask> : public InterfaceAbi<LFramework::IUnknown>{
+        using Base = InterfaceAbi<LFramework::IUnknown>;
+        //{3d620300-77e1-4711-87e5-351158c33326}
+        static constexpr InterfaceID ID() { return { 0x3d620300, 0x471177e1, 0x1135e587, 0x2633c358 }; }
+        virtual Result LFRAMEWORK_COM_CALL isConnected(bool& result) = 0;
+    private:
+        ~InterfaceAbi() = delete;
+    }; //ITask
+    //Interface Remap
+    template<class TImplementer>
+    struct InterfaceRemap<MicroNetwork::Host::ITask, TImplementer> : public InterfaceRemap<LFramework::IUnknown, TImplementer>{
+        virtual Result LFRAMEWORK_COM_CALL isConnected(bool& result){
+            try{
+                result = this->implementer()->isConnected();
+            }
+            catch(...){
+                return LFramework::Result::UnknownFailure;
+            }
+            return LFramework::Result::Ok;
+        }
+    };
+    //Interface Wrapper
+    template<>
+    class InterfaceWrapper<MicroNetwork::Host::ITask> : public InterfaceWrapper<LFramework::IUnknown> {
+    public:
+        bool isConnected(){
+            bool result;
+            auto comCallResult = reinterpret_cast<InterfaceAbi<MicroNetwork::Host::ITask>*>(_abi)->isConnected(result);
             if(comCallResult != Result::Ok){
                 throw ComException(comCallResult);
             }
