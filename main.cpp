@@ -23,9 +23,9 @@
 
 #include <MicroNetwork/User/TaskContext.h>
 #include <MicroNetwork/User/TaskContextConstructor.h>
-#include <MicroNetwork.Task.MemoryAccess.IHostToDevice.OutMarshaler.h>
-#include <MicroNetwork.Task.MemoryAccess.IDeviceToHost.InMarshaler.h>
 
+#include <MicroNetwork.Task.MemoryAccess.IHostToDevice.Serializer.Out.h>
+#include <MicroNetwork.Task.MemoryAccess.IDeviceToHost.Serializer.In.h>
 #include <iomanip>
 
 using namespace MicroNetwork;
@@ -121,7 +121,7 @@ public:
 
 int main() {
     auto rx = LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>::create<TestDataReceiver>();
-    auto outPtr = LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice>::create<MicroNetwork::Task::MemoryAccess::IHostToDeviceOutMarshaler>(rx);
+    auto outPtr = LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice>::create<MicroNetwork::Task::MemoryAccess::IHostToDeviceSerializerOut>(rx);
     outPtr->read({ 1, 2 });
     outPtr->write({ {1, 2}, {6, 7, 8} });
 
