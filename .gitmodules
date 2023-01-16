@@ -11,5 +11,5 @@
 	path = Dependencies/MicroNetworkUser
 	url = https://github.com/L-proger/MicroNetworkUser.git
 [submodule "ComInterfaceGenerator"]
-	path = ComInterfaceGenerator
+	path = ApiGenerator/ComInterfaceGenerator
 	url = https://github.com/L-proger/ComInterfaceGenerator.git
