@@ -1,4 +1,6 @@
 #pragma once
+#include <LFramework/COM/ComObject.h>
+#include <MicroNetwork.Common.h>
 #include <MicroNetwork.Task.MemoryAccess.h>
 namespace MicroNetwork::Task::MemoryAccess{
     class IDeviceToHostSerializerIn : public LFramework::ComImplement<IDeviceToHostSerializerIn, LFramework::ComObject, MicroNetwork::Common::IDataReceiver>{

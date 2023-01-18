@@ -21,55 +21,56 @@
 #include <MicroNetwork.Common.h>
 #include <MicroNetwork.Task.MemoryAccess.h>
 
-#include <MicroNetwork/User/TaskContext.h>
-#include <MicroNetwork/User/TaskContextConstructor.h>
+#include <MicroNetwork/User/Link.h>
+#include <MicroNetwork/User/LinkConstructor.h>
 
 #include <MicroNetwork.Task.MemoryAccess.IHostToDevice.Serializer.Out.h>
 #include <MicroNetwork.Task.MemoryAccess.IDeviceToHost.Serializer.In.h>
+#include <MicroNetwork.Task.MemoryAccess.IStream.IoStreamDescriptor.h>
 #include <MicroNetwork.Host.MemoryAccess.h>
 #include <iomanip>
 
 using namespace MicroNetwork;
 
-class TestTaskContext : public User::TaskContext {
-public:
-    static constexpr LFramework::Guid ID = { 0x292464d1, 0x4e01af7a, 0x3027c698, 0x6f363d48 };
+class TestTaskContext : public LFramework::ComImplement<TestTaskContext, User::Link<MicroNetwork::Task::MemoryAccess::IStreamIoStreamDescriptor>, MicroNetwork::Task::MemoryAccess::IDeviceToHost> {
+public: 
     ~TestTaskContext() {
         std::cout << "TestTaskHost::~dtor" << std::endl;
     }
-    void setDataReceiver(LFramework::ComPtr<Common::IDataReceiver> receiver) override {
-        _receiver = receiver;
+    void setOutputStream(LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice> outStream) override {
+        _outStream = outStream;
     }
-    LFramework::Result packet(Common::PacketHeader header, const void* data) {
-        std::lock_guard<std::mutex> lock(_packetsMutex);
-        _packets.push_back(std::vector<std::uint8_t>((const std::uint8_t*)data, (const std::uint8_t*)data + header.size));
-        return LFramework::Result::Ok;
+
+    //Device to host
+    void readResponse(MicroNetwork::Task::MemoryAccess::MemoryBlob response) {
+        lfDebug() << "readResponse: address = " << response.header.address << " size = " << response.header.size;
+        const std::uint8_t* data = reinterpret_cast<const std::uint8_t*>(&response.data);
+        lfDebug() << "data = " << data[0] << ", " << data[1] << " ...";
+
     }
-    std::vector<std::uint8_t> getPacket() { 
-        std::lock_guard<std::mutex> lock(_packetsMutex);
-        if(_packets.empty()){
-            return {}; 
-        }else{
-            auto result = _packets[0];
-            _packets.erase(_packets.begin());
-            return result;
-        }
+    void writeResponse(bool success) {
+        lfDebug() << "writeResponse";
     }
+
+
+    //User interface
     void sendPacket(const std::vector<std::uint8_t>& data) { 
         
     }
+
     void onUserRelease() override {
-         _receiver = nullptr;
+        _outStream = nullptr;
         lfDebug() << "User release";
     }
     void onNetworkRelease() override {
-        TaskContext::onNetworkRelease();
+        Link::onNetworkRelease();
         lfDebug() << "Network release";
     }
+protected:
+    
 private:
     int _rxPacketId = 0;
-    std::vector<std::vector<std::uint8_t>> _packets;
-    LFramework::ComPtr<Common::IDataReceiver> _receiver;
+    LFramework::ComPtr<MicroNetwork::Task::MemoryAccess::IHostToDevice> _outStream;
     std::mutex _packetsMutex;
 };
 
@@ -102,7 +103,7 @@ int main() {
 
         lfDebug() << "Starting task on node: " <<  node.value;
 
-        auto taskContext = User::TaskContextConstructor<MicroNetwork::Host::MemoryAccess::ITask, TestTaskContext>::construct(network, node);
+        auto taskContext = User::LinkConstructor<MicroNetwork::Host::MemoryAccess::ITask, TestTaskContext>::constructLink(network, node);
 
         lfDebug() << "Task started";
         std::vector<std::uint8_t> packet;
