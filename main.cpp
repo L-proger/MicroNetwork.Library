@@ -57,6 +57,10 @@ public:
     void sendPacket(const std::vector<std::uint8_t>& data) { 
         
     }
+    std::vector<std::uint8_t> getPacket() {
+        return {};
+    }
+
 
     void onUserRelease() override {
         _outStream = nullptr;
