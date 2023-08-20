@@ -29,25 +29,38 @@ INTERFACE
 	LFrameworkConfig.h
 )
 
-target_include_directories(libMicroNetworkSources INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/Interfaces")
-target_include_directories(libMicroNetworkSources INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(libMicroNetworkSources 
+INTERFACE 
+	"${CMAKE_CURRENT_SOURCE_DIR}/Interfaces"
+	"${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
 add_subdirectory(Dependencies)
 
-target_compile_definitions(LFramework INTERFACE LF_USB_HOST)
+target_compile_definitions(LFramework 
+INTERFACE 
+	LF_USB_HOST
+	LF_THREAD_STD
+	LF_TERMINAL_STREAM_COUT
+)
 
+target_link_libraries(libMicroNetworkSources 
+INTERFACE 
+	MicroNetworkCommon
+	MicroNetworkHost
+	MicroNetworkUser
+	LFramework
+	LFramework::Threading
+	LFramework::Usb
+	LFramework::Usb::Host
+	LFramework::IO
+	LFramework::IO::Terminal
+	LFramework::UnitTest
+)
 
-target_link_libraries(libMicroNetworkSources INTERFACE LFramework)
-target_link_libraries(libMicroNetworkSources INTERFACE MicroNetworkCommon)
-
-target_link_libraries(libMicroNetworkSources INTERFACE MicroNetworkHost)
-target_link_libraries(libMicroNetworkSources INTERFACE MicroNetworkUser)
-
-target_link_libraries(libMicroNetworkSources INTERFACE pthread)
-
-
-add_executable(libMicroNetworkTest)
-target_link_libraries(libMicroNetworkTest PRIVATE libMicroNetworkSources)
+#target_link_libraries(libMicroNetworkSources INTERFACE pthread)
+#add_executable(libMicroNetworkTest)
+#target_link_libraries(libMicroNetworkTest PRIVATE libMicroNetworkSources)
 
 add_library(MicroNetwork SHARED)
 target_link_libraries(MicroNetwork PRIVATE libMicroNetworkSources)
