@@ -6,10 +6,10 @@
 //imported type: LFramework::Guid from module: LFramework/Guid.h
 //imported type: std::uint16_t from module: cstdint
 //imported type: bool from module: LanguagePrimitive
-#include <LFramework/Guid.h>
 #include <LFramework/COM/ComObject.h>
-#include <MicroNetwork.Common.h>
 #include <cstdint>
+#include <MicroNetwork.Common.h>
+#include <LFramework/Guid.h>
 namespace MicroNetwork::Host{
     enum NodeState : std::int32_t{
         NotReady = 0,
@@ -45,8 +45,10 @@ namespace LFramework{
     template<class TImplementer>
     struct InterfaceRemap<MicroNetwork::Host::INetwork, TImplementer> : public InterfaceRemap<LFramework::IUnknown, TImplementer>{
         virtual Result LFRAMEWORK_COM_CALL startTask(MicroNetwork::Host::NodeHandle node, LFramework::Guid taskId, LFramework::InterfaceAbi<MicroNetwork::Common::IDataReceiver>* userDataReceiver, LFramework::ComPtr<MicroNetwork::Common::IDataReceiver>& result){
+            LFramework::ComPtr<MicroNetwork::Common::IDataReceiver> userDataReceiverMarshaler;
+            userDataReceiverMarshaler.attach(userDataReceiver);
             try{
-                result = this->implementer()->startTask(node, taskId, userDataReceiver);
+                result = this->implementer()->startTask(node, taskId, userDataReceiverMarshaler);
             }
             catch(...){
                 return LFramework::Result::UnknownFailure;

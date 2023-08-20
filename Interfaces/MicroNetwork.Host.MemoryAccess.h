@@ -2,8 +2,8 @@
 //imported type: ITask from module: MicroNetwork.Host
 //imported type: std::uint8_t from module: cstdint
 //imported type: void from module: LanguagePrimitive
-#include <cstdint>
 #include <MicroNetwork.Host.h>
+#include <cstdint>
 namespace MicroNetwork::Host::MemoryAccess{
     class ITask;
 } //MicroNetwork::Host::MemoryAccess
