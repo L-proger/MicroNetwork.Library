@@ -10,3 +10,5 @@
 /out
 /build
 /ApiGenerator/build
+/Actions/bin
+/Actions/obj
